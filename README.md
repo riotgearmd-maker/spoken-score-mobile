@@ -1,6 +1,6 @@
-# Spoken Score Mobile
+# Vinceró
 
-Cross-platform iOS and Android pronunciation game for singers, built with Expo, React Native, and TypeScript.
+Vinceró is a cross-platform iOS and Android pronunciation game for singers, built with Expo, React Native, and TypeScript.
 
 The primary loop is hear, repeat, and improve: singers listen to an AI-spoken lyric demonstration, speak the phrase, and receive phoneme-level feedback. The first playable challenge focuses on Italian geminate consonants. RP and General American English are the next pronunciation profiles.
 

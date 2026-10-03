@@ -45,20 +45,20 @@ export default function GameScreen() {
           ))}
         </View>
 
-        <Text style={styles.step}>ITALIAN · GEMINATE CONSONANTS</Text>
+        <Text style={styles.step}>TODAY’S ITALIAN SEEDLING · GEMINATES</Text>
         <Text style={styles.title}>{challenge.title}</Text>
         <Text style={styles.source}>{challenge.source}</Text>
 
         <View style={styles.promptCard}>
           <Text style={styles.prompt}>{challenge.text}</Text>
           <Text style={styles.translation}>{challenge.translation}</Text>
-          <Text style={styles.listen}>▶ Hear the model</Text>
+          <Text style={styles.listen}>♪ Hear the garden guide</Text>
         </View>
 
         <Text style={styles.instruction}>
-          {state === 'ready' && 'Tap and speak the phrase naturally.'}
-          {state === 'listening' && 'Listening… tap when you finish.'}
-          {state === 'scored' && 'Strong start. Focus on the final double t.'}
+          {state === 'ready' && 'Take a breath, then speak the phrase naturally.'}
+          {state === 'listening' && 'Listening closely… tap when you finish.'}
+          {state === 'scored' && 'A lovely start. Let the final double t bloom.'}
         </Text>
 
         <Pressable
@@ -75,7 +75,7 @@ export default function GameScreen() {
           <View style={styles.results}>
             <View style={styles.scoreRow}>
               <View>
-                <Text style={styles.scoreLabel}>PRONUNCIATION SCORE</Text>
+                <Text style={styles.scoreLabel}>YOUR PHRASE IN BLOOM</Text>
                 <Text style={styles.score}>{grade.total}</Text>
               </View>
               <View style={styles.metricList}>
@@ -100,7 +100,7 @@ export default function GameScreen() {
             </View>
 
             <View style={styles.feedbackCard}>
-              <Text style={styles.feedbackTitle}>Try this</Text>
+              <Text style={styles.feedbackTitle}>A little tending</Text>
               <Text style={styles.feedbackText}>Close fully before the final “t,” then release into the “e.” The silence is part of the consonant.</Text>
             </View>
           </View>
@@ -122,21 +122,21 @@ const styles = StyleSheet.create({
   profileText: { color: colors.muted, fontSize: 12, fontWeight: '800' },
   profileTextActive: { color: colors.background },
   step: { color: colors.accent, fontSize: 11, fontWeight: '900', letterSpacing: 1.6 },
-  title: { color: colors.cream, fontSize: 31, fontWeight: '800', lineHeight: 36, marginTop: 10 },
+  title: { color: colors.cream, fontFamily: 'serif', fontSize: 33, fontWeight: '700', lineHeight: 39, marginTop: 10 },
   source: { color: colors.muted, fontSize: 14, marginTop: 6 },
-  promptCard: { backgroundColor: colors.surface, borderColor: colors.line, borderRadius: 20, borderWidth: 1, marginTop: 24, padding: 22 },
-  prompt: { color: colors.cream, fontSize: 29, fontWeight: '700', lineHeight: 38 },
+  promptCard: { backgroundColor: colors.surface, borderColor: colors.line, borderRadius: 26, borderWidth: 1, marginTop: 24, padding: 22 },
+  prompt: { color: colors.cream, fontFamily: 'serif', fontSize: 30, fontWeight: '700', lineHeight: 39 },
   translation: { color: colors.muted, fontSize: 14, marginTop: 8 },
   listen: { color: colors.accent, fontSize: 14, fontWeight: '800', marginTop: 22 },
   instruction: { color: colors.cream, fontSize: 16, marginTop: 28, textAlign: 'center' },
-  micButton: { alignItems: 'center', alignSelf: 'center', backgroundColor: colors.accent, borderRadius: 48, height: 96, justifyContent: 'center', marginTop: 18, width: 96 },
+  micButton: { alignItems: 'center', alignSelf: 'center', backgroundColor: colors.accent, borderColor: '#DDA8AE', borderRadius: 48, borderWidth: 6, height: 96, justifyContent: 'center', marginTop: 18, width: 96 },
   micButtonListening: { backgroundColor: colors.danger },
   micIcon: { color: colors.background, fontSize: 22 },
   micLabel: { color: colors.background, fontSize: 12, fontWeight: '900', marginTop: 4 },
   results: { marginTop: 30 },
   scoreRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   scoreLabel: { color: colors.muted, fontSize: 10, fontWeight: '900', letterSpacing: 1.3 },
-  score: { color: colors.cream, fontSize: 54, fontWeight: '900' },
+  score: { color: colors.cream, fontFamily: 'serif', fontSize: 56, fontWeight: '700' },
   metricList: { alignItems: 'flex-end', gap: 5 },
   metric: { color: colors.muted, fontSize: 13 },
   phonemeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 16 },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   phonemeWarn: { backgroundColor: colors.warning },
   phonemeBad: { backgroundColor: colors.danger },
   phonemeText: { color: colors.background, fontSize: 14, fontWeight: '900' },
-  feedbackCard: { borderColor: colors.line, borderRadius: 16, borderWidth: 1, marginTop: 18, padding: 18 },
+  feedbackCard: { backgroundColor: colors.accentSoft, borderColor: '#E5BFC2', borderRadius: 22, borderWidth: 1, marginTop: 18, padding: 18 },
   feedbackTitle: { color: colors.accent, fontSize: 13, fontWeight: '900' },
   feedbackText: { color: colors.cream, fontSize: 15, lineHeight: 22, marginTop: 7 },
   prototypeNote: { color: '#746C64', fontSize: 11, lineHeight: 16, marginTop: 28, textAlign: 'center' },

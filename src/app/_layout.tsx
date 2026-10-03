@@ -12,7 +12,7 @@ export default function RootLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="game" options={{ title: 'Pronunciation game' }} />
+      <Stack.Screen name="game" options={{ title: 'The pronunciation garden' }} />
     </Stack>
   );
 }

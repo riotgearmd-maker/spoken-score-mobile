@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Spoken Score",
-    "slug": "spoken-score",
-    "scheme": "spoken-score",
+    "name": "Vinceró",
+    "slug": "vincero",
+    "scheme": "vincero",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,12 +11,6 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
       "predictiveBackGestureEnabled": false
     },
     "web": {
