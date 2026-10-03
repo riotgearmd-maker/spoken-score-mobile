@@ -1,9 +1,14 @@
-import { ObservedPhoneme, PronunciationChallenge } from '../domain/pronunciation';
+import { CapturedAudio, ObservedPhoneme, PronunciationChallenge } from '../domain/pronunciation';
 
-export type PronunciationEngine = {
-  startAttempt(challenge: PronunciationChallenge): Promise<void>;
-  stopAttempt(): Promise<ObservedPhoneme[]>;
+export type AlignmentResult = {
+  phonemes: ObservedPhoneme[];
+  engineId: string;
+  engineVersion: string;
 };
 
-// A production implementation will stream audio to a phoneme-alignment backend.
-// Keeping that boundary here lets the game remain independent of the provider.
+export type PronunciationEngine = {
+  analyze(audio: CapturedAudio, challenge: PronunciationChallenge): Promise<AlignmentResult>;
+};
+
+// Provider adapters implement this port. The game and scoring rules never import
+// a vendor SDK directly, which keeps evaluation reproducible and providers replaceable.

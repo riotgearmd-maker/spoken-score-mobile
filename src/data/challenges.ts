@@ -1,6 +1,6 @@
 import { PronunciationChallenge, PronunciationProfileId } from '../domain/pronunciation';
 
-export const profiles: Array<{ id: PronunciationProfileId; shortName: string; name: string }> = [
+export const profiles: { id: PronunciationProfileId; shortName: string; name: string }[] = [
   { id: 'italian', shortName: 'IT', name: 'Italian' },
   { id: 'english-rp', shortName: 'RP', name: 'English · RP' },
   { id: 'english-general-american', shortName: 'GA', name: 'English · General American' },

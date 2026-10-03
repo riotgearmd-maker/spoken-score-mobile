@@ -20,7 +20,15 @@ export type PronunciationChallenge = {
 export type ObservedPhoneme = {
   symbol: string;
   confidence: number;
+  startMs?: number;
+  endMs?: number;
   durationMs?: number;
+};
+
+export type CapturedAudio = {
+  uri: string;
+  durationMs: number;
+  mimeType: string;
 };
 
 export type PhonemeGrade = PhonemeTarget & {
@@ -35,4 +43,14 @@ export type AttemptGrade = {
   timing: number;
   completeness: number;
   phonemes: PhonemeGrade[];
+};
+
+export type EvaluatedAttempt = {
+  challengeId: string;
+  audio: CapturedAudio;
+  grade: AttemptGrade;
+  engineId: string;
+  engineVersion: string;
+  scoringVersion: string;
+  evaluatedAt: string;
 };

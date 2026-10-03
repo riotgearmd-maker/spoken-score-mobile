@@ -1,25 +1,42 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { challenges, italianGeminateDemo, profiles } from '../data/challenges';
+import { challenges, profiles } from '../data/challenges';
 import { AttemptGrade, PronunciationProfileId } from '../domain/pronunciation';
-import { gradePronunciation } from '../services/pronunciationGrader';
+import { useAudioCapture } from '../hooks/useAudioCapture';
+import { createPronunciationEngine } from '../services/pronunciationEngineFactory';
 import { colors } from '../theme';
+import { evaluatePronunciationAttempt } from '../usecases/evaluatePronunciationAttempt';
 
-type GameState = 'ready' | 'listening' | 'scored';
+type GameState = 'ready' | 'listening' | 'analyzing' | 'scored' | 'error';
+const pronunciationEngine = createPronunciationEngine();
 
 export default function GameScreen() {
   const [profileId, setProfileId] = useState<PronunciationProfileId>('italian');
   const [state, setState] = useState<GameState>('ready');
+  const [grade, setGrade] = useState<AttemptGrade>();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const audioCapture = useAudioCapture();
   const challenge = challenges[0];
-  const grade: AttemptGrade | undefined = useMemo(
-    () => (state === 'scored' ? gradePronunciation(challenge, italianGeminateDemo) : undefined),
-    [challenge, state],
-  );
 
-  const handleAttempt = () => {
-    if (state === 'ready') setState('listening');
-    else if (state === 'listening') setState('scored');
-    else setState('ready');
+  const handleAttempt = async () => {
+    try {
+      setErrorMessage(undefined);
+      if (state === 'listening') {
+        setState('analyzing');
+        const audio = await audioCapture.stop();
+        const attempt = await evaluatePronunciationAttempt(audio, challenge, pronunciationEngine);
+        setGrade(attempt.grade);
+        setState('scored');
+        return;
+      }
+
+      setGrade(undefined);
+      await audioCapture.start();
+      setState('listening');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Something interrupted this attempt. Please try again.');
+      setState('error');
+    }
   };
 
   return (
@@ -58,17 +75,26 @@ export default function GameScreen() {
         <Text style={styles.instruction}>
           {state === 'ready' && 'Take a breath, then speak the phrase naturally.'}
           {state === 'listening' && 'Listening closely… tap when you finish.'}
+          {state === 'analyzing' && 'Finding each vowel and consonant…'}
           {state === 'scored' && 'A lovely start. Let the final double t bloom.'}
+          {state === 'error' && errorMessage}
         </Text>
 
         <Pressable
           accessibilityLabel={state === 'listening' ? 'Finish speaking' : 'Start pronunciation attempt'}
           accessibilityRole="button"
+          disabled={state === 'analyzing'}
           onPress={handleAttempt}
-          style={[styles.micButton, state === 'listening' && styles.micButtonListening]}
+          style={[
+            styles.micButton,
+            state === 'listening' && styles.micButtonListening,
+            state === 'analyzing' && styles.micButtonDisabled,
+          ]}
         >
           <Text style={styles.micIcon}>{state === 'listening' ? '■' : '●'}</Text>
-          <Text style={styles.micLabel}>{state === 'ready' ? 'Speak' : state === 'listening' ? 'Finish' : 'Try again'}</Text>
+          <Text style={styles.micLabel}>
+            {state === 'ready' ? 'Speak' : state === 'listening' ? 'Finish' : state === 'analyzing' ? 'Listening' : 'Try again'}
+          </Text>
         </Pressable>
 
         {grade && (
@@ -106,7 +132,7 @@ export default function GameScreen() {
           </View>
         )}
 
-        <Text style={styles.prototypeNote}>Prototype scoring uses a deterministic phoneme trace. Live microphone alignment is the next integration.</Text>
+        <Text style={styles.prototypeNote}>Audio is recorded locally for this attempt. Prototype alignment still uses a deterministic phoneme trace.</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -131,6 +157,7 @@ const styles = StyleSheet.create({
   instruction: { color: colors.cream, fontSize: 16, marginTop: 28, textAlign: 'center' },
   micButton: { alignItems: 'center', alignSelf: 'center', backgroundColor: colors.accent, borderColor: '#DDA8AE', borderRadius: 48, borderWidth: 6, height: 96, justifyContent: 'center', marginTop: 18, width: 96 },
   micButtonListening: { backgroundColor: colors.danger },
+  micButtonDisabled: { opacity: 0.55 },
   micIcon: { color: colors.background, fontSize: 22 },
   micLabel: { color: colors.background, fontSize: 12, fontWeight: '900', marginTop: 4 },
   results: { marginTop: 30 },
