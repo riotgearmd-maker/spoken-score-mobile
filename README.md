@@ -18,6 +18,11 @@ npm run android
 - `src/app/` contains Expo Router screens.
 - `src/domain/` defines challenges, phoneme observations, and grading results.
 - `src/services/pronunciationGrader.ts` performs deterministic phoneme and duration scoring.
-- `src/services/pronunciationEngine.ts` is the boundary for the future microphone/alignment provider.
+- `src/services/pronunciationEngine.ts` isolates the app from the speech backend.
+- `backend/` normalizes MFA alignment and calibrated Kaldi GOP output behind the
+  versioned pronunciation API.
 
-The current game uses a deterministic sample phoneme trace so the interaction and scoring can be developed before choosing the production recognition backend.
+The game records real microphone audio. A deterministic engine remains the safe
+development default; set `EXPO_PUBLIC_PRONUNCIATION_ENGINE=remote` and
+`EXPO_PUBLIC_PRONUNCIATION_API_URL` to exercise the self-hosted backend. See
+`backend/README.md` for its native-engine configuration and test command.
