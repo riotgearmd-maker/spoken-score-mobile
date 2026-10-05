@@ -22,6 +22,14 @@ change this.
 
 ## Configure the engines
 
+The pinned MFA container runner is available as
+`python3 -m vincero_backend.mfa_container`; see `.env.example`. It mounts only
+the attempt workspace plus a persistent `vincero-mfa-models` Docker volume.
+Docker stores that volume in its configured external VM disk. Before evaluating
+audio, provision the required dictionaries and acoustic models in that volume.
+The runner has passed import/argument validation; live alignment is pending
+successful model provisioning and an audio smoke test.
+
 Commands are JSON arrays so filenames never pass through a shell. Tokens may
 contain the documented placeholders.
 
@@ -53,4 +61,3 @@ than silently presented as user-facing confidence.
 cd backend
 python3 -m unittest discover -s tests -v
 ```
-

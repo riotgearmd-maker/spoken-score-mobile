@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from vincero_backend.adapters import _interval
+from vincero_backend.adapters import _interval, _find_phones
 from vincero_backend.models import Challenge, PhoneInterval, PhoneScore, ValidationError
 from vincero_backend.pipeline import PronunciationPipeline
 
@@ -48,6 +48,17 @@ class PipelineTests(unittest.TestCase):
 
     def test_accepts_explicit_millisecond_alignment(self):
         self.assertEqual(_interval({"symbol": "a", "startMs": 25, "endMs": 140}), PhoneInterval("a", 25, 140))
+
+    def test_parses_real_mfa_json_tier(self):
+        payload = {"tiers": {"phones": {"type": "interval", "entries": [[0.12, 0.30, "tː"]]}}}
+        self.assertEqual(_interval(_find_phones(payload)[0]), PhoneInterval("tː", 120, 300))
+
+    def test_rejects_reversed_intervals(self):
+        with self.assertRaises(ValueError):
+            _interval({"symbol": "a", "startMs": 140, "endMs": 25})
+
+    def test_removes_word_position_suffix_without_losing_gemination(self):
+        self.assertEqual(_interval({"label": "tː_I", "begin": 0.12, "end": 0.30}), PhoneInterval("tː", 120, 300))
 
 
 if __name__ == "__main__":

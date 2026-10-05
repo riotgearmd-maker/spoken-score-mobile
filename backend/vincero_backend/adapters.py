@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import Iterable
@@ -30,7 +31,7 @@ def _command(name: str) -> list[str]:
     return value
 
 
-def _run(template: Iterable[str], replacements: dict[str, str], timeout: int = 120) -> None:
+def _run(template: Iterable[str], replacements: dict[str, str], timeout: int = 330) -> None:
     command = [token.format_map(replacements) for token in template]
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=timeout, check=False)
@@ -66,7 +67,7 @@ class MfaAligner:
         try:
             payload = json.loads(output.read_text(encoding="utf-8"))
             raw_phones = _find_phones(payload)
-            phones = [_interval(item) for item in raw_phones if _label(item)]
+            phones = [_interval(item) for item in raw_phones if _label(item) and _label(item) not in {"sil", "sp", "spn", "<eps>"}]
         except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
             raise EngineExecutionError("MFA produced invalid phone alignment JSON") from error
         if not phones:
@@ -104,6 +105,10 @@ def _find_phones(payload: object) -> list[dict]:
         if isinstance(payload.get("phones"), list):
             return payload["phones"]
         tiers = payload.get("tiers")
+        if isinstance(tiers, dict) and isinstance(tiers.get("phones"), dict):
+            entries = tiers["phones"].get("entries")
+            if isinstance(entries, list):
+                return [{"begin": row[0], "end": row[1], "label": row[2]} for row in entries]
         if isinstance(tiers, dict) and isinstance(tiers.get("phones"), list):
             return tiers["phones"]
         for value in payload.values():
@@ -128,4 +133,8 @@ def _interval(item: dict) -> PhoneInterval:
         multiplier = 1000
     if start is None or end is None:
         raise ValueError("interval is missing boundaries")
-    return PhoneInterval(_label(item), round(float(start) * multiplier), round(float(end) * multiplier))
+    start_ms, end_ms = round(float(start) * multiplier), round(float(end) * multiplier)
+    if start_ms < 0 or end_ms < start_ms or end_ms > 30000:
+        raise ValueError("invalid or overlong phone boundaries")
+    symbol = re.sub(r"_[BIES]$", "", _label(item))
+    return PhoneInterval(symbol, start_ms, end_ms)

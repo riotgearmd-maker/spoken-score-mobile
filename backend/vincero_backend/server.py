@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import threading
 from email.parser import BytesParser
 from email.policy import default
 from http import HTTPStatus
@@ -15,6 +16,8 @@ from .pipeline import PronunciationPipeline
 
 
 MAX_UPLOAD_BYTES = 12 * 1024 * 1024
+AUDIO_EXTENSIONS = {"audio/mp4": ".m4a", "audio/x-m4a": ".m4a", "audio/wav": ".wav", "audio/x-wav": ".wav", "audio/aiff": ".aiff"}
+EVALUATION_SLOT = threading.BoundedSemaphore(1)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -53,11 +56,20 @@ class Handler(BaseHTTPRequestHandler):
             audio = fields["audio"].get_payload(decode=True)
             if not audio:
                 raise ValidationError("audio is required")
-            with tempfile.TemporaryDirectory(prefix="vincero-attempt-") as directory:
-                workspace = Path(directory)
-                audio_path = workspace / "attempt.audio"
-                audio_path.write_bytes(audio)
-                result = self.pipeline.evaluate(audio_path, challenge, workspace)
+            suffix = AUDIO_EXTENSIONS.get(fields["audio"].get_content_type())
+            if suffix is None:
+                raise ValidationError("unsupported audio content type")
+            if not EVALUATION_SLOT.acquire(blocking=False):
+                self._json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "engine_busy"})
+                return
+            try:
+                with tempfile.TemporaryDirectory(prefix="vincero-attempt-") as directory:
+                    workspace = Path(directory)
+                    audio_path = workspace / ("attempt" + suffix)
+                    audio_path.write_bytes(audio)
+                    result = self.pipeline.evaluate(audio_path, challenge, workspace)
+            finally:
+                EVALUATION_SLOT.release()
             self._json(HTTPStatus.OK, result)
         except (KeyError, json.JSONDecodeError, ValidationError, UnicodeDecodeError) as error:
             self._json(HTTPStatus.BAD_REQUEST, {"error": "invalid_request", "message": str(error)})
@@ -89,4 +101,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
